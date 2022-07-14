@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.psl</groupId>
+		<artifactId>mosaic-microservice-parent</artifactId>
+		<version>0.0.2</version>
+	</parent>
+
+	<groupId>com.psl</groupId>
+	<artifactId>mosaics3uploaderlibrary</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>mosaic-s3uploader-library</name>
+	<description>MosaicS3uploaderLibrary microservice</description>
+	<packaging>jar</packaging>
+
+	<properties>
+		<packageInPathFormat>com/psl</packageInPathFormat>
+		<distributionManagement.url>https://maven.pkg.github.com/gojoko-marketing/mosaics3uploaderlibrary</distributionManagement.url>
+		<scm.developerConnection>scm:git:https://github.com/gojoko-marketing/mosaics3uploaderlibrary.git</scm.developerConnection>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webflux</artifactId>
+			<version>5.3.20</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

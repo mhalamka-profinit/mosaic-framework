@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployments.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "pdbs.mosaics3uploaderlibrary.labels" . | indent 4 }}
+    app: {{ .Values.deployments.labels.app }}
+spec:
+  replicas: {{ .Values.deployments.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployments.labels.selectorApp }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployments.labels.selectorApp }}
+    spec:
+      serviceAccountName: {{ .Values.deployments.labels.selectorApp }}
+      securityContext:
+        runAsNonRoot: {{ .Values.runasnonroot }}
+        readOnlyRootFilesystem: {{ .Values.readonlyrootfilesystem }}
+        runAsUser:  {{ .Values.runasuser }}
+        runAsGroup: {{ .Values.runasgrp }}
+    {{- with .Values.deployments.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+        - name: logs
+          emptyDir: {}
+      containers:
+        - name: {{ .Values.deployments.labels.selectorApp }}-container
+          image: "{{ .Values.deployments.image.repository }}:{{ .Values.deployments.image.tag }}"
+          imagePullPolicy: {{ .Values.deployments.image.pullPolicy }}
+          env:
+          {{ range .Values.deployments.secrets.data }}
+          - name: {{ .name }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.deployments.secrets.name }}
+                key: {{ .name }}
+          {{ end }}
+          {{ range .Values.deployments.configMap.data }}
+          - name: {{ .name }}
+            valueFrom:
+              configMapKeyRef:
+                name: {{ $.Values.deployments.configMap.name }}
+                key: {{ .name }}
+          {{ end }}
+          {{ if .Values.isDBUsed }}
+          - name: {{ .Values.datasourceConfigName }}
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.deployments.configMap.name }}
+                key: {{ .Values.datasourceConfigName }}
+          - name: spring.datasource.username
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.deployments.secrets.name }}
+                key: spring.datasource.username
+          - name: spring.datasource.password
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.deployments.secrets.name }}
+                key: spring.datasource.password
+          {{ end }}
+          - name: {{ .Values.environmentPropertyName }}
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.deployments.configMap.name }}
+                key: {{ .Values.environmentPropertyName }}
+          - name: {{ .Values.tenantNamePropertyName }}
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.deployments.configMap.name }}
+                key: {{ .Values.tenantNamePropertyName }}
+          resources:
+            limits:
+              memory: {{ .Values.deployments.resources.limits.memory }}
+              cpu: '{{ .Values.deployments.resources.limits.cpu }}'
+            requests:
+              memory: {{ .Values.deployments.resources.requests.memory }}
+              cpu: '{{ .Values.deployments.resources.requests.cpu }}'
+          ports:
+            - containerPort: {{ .Values.deployments.containerPort }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.deployments.containerPort }}
+            initialDelaySeconds: {{ .Values.deployments.healthCheckDelay }}
+            timeoutSeconds: {{ .Values.deployments.healthCheckTimeout }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.deployments.containerPort }}
+            initialDelaySeconds: {{ .Values.deployments.healthCheckDelay }}
+            timeoutSeconds: {{ .Values.deployments.healthCheckTimeout }}
+          volumeMounts:
+            - name: logs
+              mountPath: {{ .Values.logsLocation }}

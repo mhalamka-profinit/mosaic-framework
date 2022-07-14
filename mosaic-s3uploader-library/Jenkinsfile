@@ -1,0 +1,2 @@
+@Library(value="generic_pipeline_library", changelog=false, poll=false)_
+generic_pipeline(svc_name: 'mosaics3uploaderlibrary',aws_profile:'mosiac',use_sts:'false',servicedbname:'culoansportal')

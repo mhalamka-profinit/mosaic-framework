@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "pdbs.mosaics3uploaderlibrary.fullname" . }}-test-connection"
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "pdbs.mosaics3uploaderlibrary.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['{{ .Values.services.name }}:{{ .Values.services.port }}']
+  restartPolicy: Never

@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: culoansportal
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: test
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql-db:/var/lib/mysql
+
+volumes:
+  mysql-db:

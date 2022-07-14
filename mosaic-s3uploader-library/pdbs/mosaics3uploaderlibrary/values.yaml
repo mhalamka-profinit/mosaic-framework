@@ -1,0 +1,82 @@
+# Default values for pdbs.cuib.masterservice.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+fullnameOverride: ""
+logsLocation: /var/log/containers
+runasnonroot: true
+readonlyrootfilesystem: true
+runasuser: 1000
+runasgrp: 1000
+isDBUsed: true
+datasourceConfigName: spring.datasource.url
+environmentPropertyName: ENVIRONMENT
+environmentPropertyValue: development
+tenantNamePropertyName: TENANT_NAME
+
+  
+deployments:
+  replicaCount: 1
+  name: mosaics3uploaderlibrary-service-deployment
+  labels:
+    app: mosaics3uploaderlibrary-service-deployment
+    selectorApp: mosaics3uploaderlibrary
+  resources:
+    limits:
+      memory: 2048Mi
+      cpu: '2'
+    requests:
+      memory: 256Mi
+      cpu: '0.1'
+  image:
+    repository: 233115145581.dkr.ecr.us-east-1.amazonaws.com/mosaics3uploaderlibrary
+    tag: latest
+    pullPolicy: IfNotPresent
+    imagePullSecrets: []
+  containerPort: 8080
+  configMap:
+    name: mosaics3uploaderlibrary-service-configmap
+    data:
+      - name: server.port
+        value: 8080
+      - name: spring.application.name
+        value: mosaics3uploaderlibrary
+      - name: server.servlet.context-path
+        value: /cuplatform/modulr/mosaics3uploaderlibrary
+      - name: spring.datasource.driver-class-name
+        value: com.mysql.cj.jdbc.Driver
+      - name: spring.jpa.show-sql
+        value: false
+      - name: spring.jpa.generate-ddl
+        value: true
+      - name: spring.datasource.hikari.connection-timeout
+        value: 20000
+      - name: spring.datasource.hikari.minimum-idle
+        value: 5
+      - name: spring.datasource.hikari.maximum-pool-size
+        value: 10
+      - name: spring.datasource.hikari.idle-timeout
+        value: 10000
+      - name: spring.datasource.hikari.max-lifetime
+        value: 1000
+      - name: spring.datasource.hikari.auto-commit
+        value: true
+
+  secrets:
+    type: Opaque
+    name: mosaics3uploaderlibrary-service-secrets
+    data: []
+    
+  
+  healthCheckPath: /cuplatform/modulr/mosaics3uploaderlibrary/actuator/health
+  healthCheckDelay: 15
+  healthCheckTimeout: 5
+
+services:
+  port: 80
+  protocol: TCP
+  type: ClusterIP
+  annotations:
+    alb.ingress.kubernetes.io/target-type: ip
+  name: mosaics3uploaderlibrary-service-service
+  context: /cuplatform/modulr/mosaics3uploaderlibrary/*

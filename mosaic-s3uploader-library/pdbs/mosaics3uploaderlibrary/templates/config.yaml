@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.deployments.configMap.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "pdbs.mosaics3uploaderlibrary.labels" . | indent 4 }}
+data:
+  {{ range .Values.deployments.configMap.data }}
+  {{ .name }} : "{{ .value }}"
+  {{ end }}
+  {{ if .Values.isDBUsed }}
+  {{ .Values.datasourceConfigName }} : "{{ .Values.databaseJDBCUrlPrefix }}{{ .Values.databaseName }}"
+  {{ end }}
+  {{ .Values.environmentPropertyName }} : "{{ .Values.environmentPropertyValue }}"
+  {{ .Values.tenantNamePropertyName }} : "{{ .Release.Namespace }}"
